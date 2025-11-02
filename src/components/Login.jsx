@@ -1,39 +1,90 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import Header from './Header';
+import { validateLogin } from '../utils/validateLogin';
+import { validateSignUp } from '../utils/validateSignup';
 
 const Login = () => {
-
   const [isSignInForm, setIsSignInForm] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const email = useRef(null);
+  const name = useRef(null);
+  const password = useRef(null);
+  const password2 = useRef(null);
 
   const toggleSignInForm = () => setIsSignInForm(!isSignInForm);
+  const onSubmit = (e) => {
+    e.preventDefault();
+
+    if (isSignInForm) {
+      const tempError = validateLogin(
+        email.current.value,
+        password.current.value
+      );
+
+      if (tempError) {
+        setErrorMessage(tempError);
+        return;
+      }
+    }
+    else {
+      const tempError = validateSignUp(
+        name.current.value,
+        email.current.value,
+        password.current.value,
+        password2.current.value
+      );
+
+      if (tempError) {
+        setErrorMessage(tempError);
+        return;
+      }
+    }
+
+    setErrorMessage(null);
+    alert("all fine!");
+  };
+
 
   return (
     <div>
-      <div className="flex justify-center items-center min-h-screen">
+      <div className=" flex justify-center items-center min-h-screen">
         <div className="bg-black/70 px-14 py-12 rounded-md w-[360px]">
 
           <h1 className="text-white text-3xl font-semibold mb-8">
             {isSignInForm ? "Sign In" : "Sign Up"}
           </h1>
 
-          {!isSignInForm &&
-          (
-            <input
-            type="text"
-            placeholder="Name"
-            className="w-full px-4 py-3 mb-4 rounded bg-[#333] text-white placeholder-gray-400 focus:outline-none"
-            />
+          {errorMessage && (
+            <p className="text-red-500 text-sm -mt-3 mb-4">
+              {errorMessage}
+            </p>
           )}
+
+
+          {!isSignInForm &&
+            (
+              <input
+                ref={name}
+                type="text"
+                placeholder="Name"
+                className="w-full px-4 py-3 mb-4 rounded bg-[#333] text-white placeholder-gray-400 focus:outline-none"
+              />
+            )}
 
           {/* Email */}
           <input
+            ref={email}
             type="text"
-            placeholder="Email or mobile number"
-            className="w-full px-4 py-3 mb-9 rounded bg-[#333] text-white placeholder-gray-400 focus:outline-none"
+            placeholder="Email"
+            className="w-full px-4 py-3 mb-4 rounded bg-[#333] text-white placeholder-gray-400 focus:outline-none"
           />
+
+          <div
+          className='mt-4'></div>
 
           {/* Password */}
           <input
+            ref={password}
             type="password"
             placeholder="Password"
             className="w-full px-4 py-3 mb-4 rounded bg-[#333] text-white placeholder-gray-400 focus:outline-none"
@@ -42,6 +93,7 @@ const Login = () => {
           {/* Password 2 */}
           {!isSignInForm &&
             (<input
+              ref={password2}
               type="password"
               placeholder="Enter password again "
               className="w-full px-4 py-3 mb-6 rounded bg-[#333] text-white placeholder-gray-400 focus:outline-none"
@@ -49,7 +101,9 @@ const Login = () => {
           }
 
           {/* Sign In Button */}
-          <button className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded font-medium mb-4">
+          <button
+            onClick={onSubmit}
+            className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded font-medium mb-4">
             {isSignInForm ? "Sign In" : "Sign Up"}
           </button>
 
