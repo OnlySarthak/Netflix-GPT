@@ -2,6 +2,9 @@ import React, { useRef, useState } from 'react'
 import Header from './Header';
 import { validateLogin } from '../utils/validateLogin';
 import { validateSignUp } from '../utils/validateSignup';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from '../utils/firebase';
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
@@ -10,39 +13,75 @@ const Login = () => {
   const name = useRef(null);
   const password = useRef(null);
   const password2 = useRef(null);
+  const navigate = useNavigate();
+
 
   const toggleSignInForm = () => setIsSignInForm(!isSignInForm);
   const onSubmit = (e) => {
     e.preventDefault();
 
+    let tempError = null;
+
     if (isSignInForm) {
-      const tempError = validateLogin(
+      tempError = validateLogin(
         email.current.value,
         password.current.value
       );
-
-      if (tempError) {
-        setErrorMessage(tempError);
-        return;
-      }
     }
     else {
-      const tempError = validateSignUp(
+      tempError = validateSignUp(
         name.current.value,
         email.current.value,
         password.current.value,
         password2.current.value
       );
+    }
 
-      if (tempError) {
-        setErrorMessage(tempError);
-        return;
-      }
+    if (tempError) {
+      setErrorMessage(tempError);
+      return;
     }
 
     setErrorMessage(null);
-    alert("all fine!");
+    if (!isSignInForm) handleSignUp();
+    else handleLogIn();
+
+    // now switch screen
+    navigate("/verify-sent");
   };
+
+  const handleSignUp = () => {
+    createUserWithEmailAndPassword(auth,
+      email.current.value,
+      password.current.value)
+      .then((userCredential) => {
+        // Signed up 
+        const user = userCredential.user;
+        console.log(user)
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        setErrorMessage(errorCode + "-" + errorMessage);
+      });
+  }
+
+  const handleLogIn = () => {
+    signInWithEmailAndPassword(auth,
+      email.current.value,
+      password.current.value)
+      .then((userCredential) => {
+        // Signed in 
+        const user = userCredential.user;
+        console.log(user)
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        setErrorMessage(errorCode + "-" + errorMessage);
+      });
+
+  }
 
 
   return (
@@ -80,7 +119,7 @@ const Login = () => {
           />
 
           <div
-          className='mt-4'></div>
+            className='mt-4'></div>
 
           {/* Password */}
           <input
@@ -107,15 +146,17 @@ const Login = () => {
             {isSignInForm ? "Sign In" : "Sign Up"}
           </button>
 
+
+          <div className="text-center text-gray-400 mb-4">OR</div>
+
+          {/* Use Code Button */}
+          <button className="w-full bg-white/20 text-white py-3 rounded mb-4 hover:bg-white/30">
+            {isSignInForm ? "Sign in" : "Sign up"} using google
+          </button>
+
           {isSignInForm &&
             (
               <>
-                <div className="text-center text-gray-400 mb-4">OR</div>
-
-                {/* Use Code Button */}
-                <button className="w-full bg-white/20 text-white py-3 rounded mb-4 hover:bg-white/30">
-                  Use a sign-in code
-                </button>
 
                 {/* Forgot Password */}
                 <div className="text-center mb-4">
@@ -145,7 +186,7 @@ const Login = () => {
           {/* Captcha Note */}
           <p className="text-gray-500 text-[12px] mt-4 leading-tight">
             This page is protected by Google reCAPTCHA to ensure you're not a bot.
-            <p className="text-blue-500 ml-1">Learn more.</p>
+            <a className="text-blue-500 ml-1">Learn more.</a>
           </p>
 
         </div>
