@@ -1,6 +1,6 @@
 import React from 'react'
 import Browse from './Browse.jsx'
-import Login from './Login.jsx'
+import Login from './auth/Login.jsx'
 import Home from './Home.jsx'
 import VerificationSent from "./auth/VerificationSent.jsx";
 import EmailVerified from "./auth/EmailVerified.jsx";

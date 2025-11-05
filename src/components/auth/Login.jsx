@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react'
-import Header from './Header';
-import { validateLogin } from '../utils/validateLogin';
-import { validateSignUp } from '../utils/validateSignup';
+import Header from '../Header';
+import { validateLogin } from '../../utils/validateLogin';
+import { validateSignUp } from '../../utils/validateSignup';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../utils/firebase';
+import { auth } from '../../utils/firebase';
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
