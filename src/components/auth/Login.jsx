@@ -2,9 +2,11 @@ import React, { useRef, useState } from 'react'
 import Header from '../Header';
 import { validateLogin } from '../../utils/validateLogin';
 import { validateSignUp } from '../../utils/validateSignup';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from '../../utils/firebase';
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../../utils/userSlice";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
@@ -14,6 +16,8 @@ const Login = () => {
   const password = useRef(null);
   const password2 = useRef(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  useSelector((store) => store.user);
 
 
   const toggleSignInForm = () => setIsSignInForm(!isSignInForm);
@@ -21,14 +25,14 @@ const Login = () => {
     e.preventDefault();
 
     let tempError = null;
+    email.current.value = email.current.value.toLowerCase();
 
     if (isSignInForm) {
       tempError = validateLogin(
         email.current.value,
         password.current.value
       );
-    }
-    else {
+    } else {
       tempError = validateSignUp(
         name.current.value,
         email.current.value,
@@ -42,29 +46,47 @@ const Login = () => {
       return;
     }
 
-    setErrorMessage(null);
-    if (!isSignInForm) handleSignUp();
-    else handleLogIn();
+    const username = name.current?.value;  // <-- SAFE, captured BEFORE rerender
 
-    // now switch screen
-    navigate("/verify-sent");
+    setErrorMessage(null);
+
+    if (!isSignInForm) handleSignUp(username);
+    else handleLogIn();
   };
 
-  const handleSignUp = () => {
-    createUserWithEmailAndPassword(auth,
+
+  const handleSignUp = (username) => {
+    createUserWithEmailAndPassword(
+      auth,
       email.current.value,
-      password.current.value)
+      password.current.value
+    )
       .then((userCredential) => {
-        // Signed up 
         const user = userCredential.user;
-        console.log(user)
+
+        updateProfile(user, {
+          displayName: username,
+        })
+          .then(() => {
+            dispatch(
+              setUser({
+                uid: user.uid,
+                email: user.email,
+                displayName: username,
+              })
+            );
+
+            navigate("/verify-sent");
+          })
+          .catch((err) => {
+            console.log("Profile update error:", err);
+          });
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        setErrorMessage(errorCode + "-" + errorMessage);
+        setErrorMessage(error.code + " - " + error.message);
       });
-  }
+  };
+
 
   const handleLogIn = () => {
     signInWithEmailAndPassword(auth,
@@ -73,12 +95,18 @@ const Login = () => {
       .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
-        console.log(user)
+        console.log(user);
+        dispatch(setUser({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName
+        }));
+        navigate("/browse");
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        setErrorMessage(errorCode + "-" + errorMessage);
+        setErrorMessage("invalid credentials - " + errorMessage);
       });
 
   }
