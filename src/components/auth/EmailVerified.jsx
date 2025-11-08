@@ -1,6 +1,13 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
 const EmailVerified = () => {
+    const navigate = useNavigate();
+
+    const handleContinue = () => {
+        navigate("/browse");
+    };
+
     return (
         <div className="flex justify-center items-center min-h-screen">
             <div className="bg-black/70 px-14 py-12 rounded-md w-[360px] text-center">
@@ -16,6 +23,7 @@ const EmailVerified = () => {
 
                 <button
                     className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded font-medium"
+                    onClick={handleContinue}
                 >
                     Continue
                 </button>

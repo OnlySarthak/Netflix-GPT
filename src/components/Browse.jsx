@@ -16,15 +16,19 @@ const Browse = () => {
         dispatch(setUser({
           uid: user.uid,
           email: user.email,
-          displayName: user.displayName
+          displayName: user.displayName,
+          emailVerified: user.emailVerified
         }));
-        console.log("yeah i am from home");
-        
-        //redirect to /browse
-        navigate("/browse");
+
+        // Stop unverified users from going to browse
+        if (!user.emailVerified) {
+          navigate("/verify-sent");
+        } else {
+          navigate("/browse");
+        }
+
       } else {
         dispatch(clearUser());
-        //redirect to /
         navigate("/");
       }
     });
@@ -34,7 +38,7 @@ const Browse = () => {
 
   return (
     <div>
-      <HeaderBrowser/>
+      <HeaderBrowser />
       <div className='text-white mt-20 p-8'>
         <h1 className='text-3xl font-bold mb-4'>Browse Page</h1>
         <p>Welcome to the Browse page! Here you can explore various movies and TV shows.</p>

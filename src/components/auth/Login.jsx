@@ -1,8 +1,7 @@
-import React, { useRef, useState } from 'react'
-import Header from '../Header';
+import { useRef, useState } from 'react'
 import { validateLogin } from '../../utils/validateLogin';
 import { validateSignUp } from '../../utils/validateSignup';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendEmailVerification } from "firebase/auth";
 import { auth } from '../../utils/firebase';
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -75,7 +74,10 @@ const Login = () => {
                 displayName: username,
               })
             );
-
+            console.log("User profile updated.");
+            sendEmailVerification(user).then(() => {  
+              console.log("Verification email sent.");
+            });
             navigate("/verify-sent");
           })
           .catch((err) => {
