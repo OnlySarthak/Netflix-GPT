@@ -1,7 +1,14 @@
 import { useRef, useState } from 'react'
 import { validateLogin } from '../../utils/validateLogin';
 import { validateSignUp } from '../../utils/validateSignup';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendEmailVerification } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+  sendEmailVerification,
+  GoogleAuthProvider,
+  signInWithPopup
+} from "firebase/auth";
 import { auth } from '../../utils/firebase';
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -53,7 +60,6 @@ const Login = () => {
     else handleLogIn();
   };
 
-
   const handleSignUp = (username) => {
     createUserWithEmailAndPassword(
       auth,
@@ -75,7 +81,7 @@ const Login = () => {
               })
             );
             console.log("User profile updated.");
-            sendEmailVerification(user).then(() => {  
+            sendEmailVerification(user).then(() => {
               console.log("Verification email sent.");
             });
             navigate("/verify-sent");
@@ -88,7 +94,6 @@ const Login = () => {
         setErrorMessage(error.code + " - " + error.message);
       });
   };
-
 
   const handleLogIn = () => {
     signInWithEmailAndPassword(auth,
@@ -112,6 +117,26 @@ const Login = () => {
       });
 
   }
+
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      dispatch(setUser({
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        emailVerified: user.emailVerified,
+        photoURL: user.photoURL,       // <-- ADD THIS
+      }));
+
+      navigate("/browse"); // Google is always verified
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
 
   return (
@@ -180,7 +205,8 @@ const Login = () => {
           <div className="text-center text-gray-400 mb-4">OR</div>
 
           {/* Use Code Button */}
-          <button className="w-full bg-white/20 text-white py-3 rounded mb-4 hover:bg-white/30">
+          <button className="w-full bg-white/20 text-white py-3 rounded mb-4 hover:bg-white/30"
+          onClick={handleGoogleLogin}>
             {isSignInForm ? "Sign in" : "Sign up"} using google
           </button>
 
