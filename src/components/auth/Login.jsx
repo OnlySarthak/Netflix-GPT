@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { use, useRef, useState } from 'react'
 import { validateLogin } from '../../utils/validateLogin';
 import { validateSignUp } from '../../utils/validateSignup';
 import {
@@ -12,7 +12,7 @@ import {
 import { auth } from '../../utils/firebase';
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../../utils/userSlice";
+import { setUser, getUser } from "../../utils/userSlice";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
@@ -24,6 +24,7 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   useSelector((store) => store.user);
+  const user = useSelector((store) => store.user);
 
 
   const toggleSignInForm = () => setIsSignInForm(!isSignInForm);
@@ -108,6 +109,15 @@ const Login = () => {
           email: user.email,
           displayName: user.displayName
         }));
+
+        if (user.emailVerified === false) {
+          user.sendEmailVerification().then(() => {
+            console.log("Verification email sent.");
+          });
+          navigate("/verify-sent");
+          return;
+        }
+
         navigate("/browse");
       })
       .catch((error) => {
@@ -129,9 +139,9 @@ const Login = () => {
         email: user.email,
         displayName: user.displayName,
         emailVerified: user.emailVerified,
-        photoURL: user.photoURL,       // <-- ADD THIS
+        photoURL: user.photoURL,
       }));
-
+      
       navigate("/browse"); // Google is always verified
     } catch (error) {
       console.log(error);
@@ -206,7 +216,7 @@ const Login = () => {
 
           {/* Use Code Button */}
           <button className="w-full bg-white/20 text-white py-3 rounded mb-4 hover:bg-white/30"
-          onClick={handleGoogleLogin}>
+            onClick={handleGoogleLogin}>
             {isSignInForm ? "Sign in" : "Sign up"} using google
           </button>
 

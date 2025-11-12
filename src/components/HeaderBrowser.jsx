@@ -5,6 +5,7 @@ import { auth } from "../utils/firebase";
 import { clearUser } from "../utils/userSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { logo,defaultAvatar } from "../utils/constant";
 
 const BrowseHeader = () => {
   const [open, setOpen] = useState(false);
@@ -26,7 +27,7 @@ const BrowseHeader = () => {
         {/* Netflix Logo */}
         <img
           className="w-28 cursor-pointer"
-          src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg"
+          src={logo}
           alt="Netflix Logo"
         />
 
@@ -53,7 +54,7 @@ const BrowseHeader = () => {
           <img
             onClick={() => setOpen(!open)}
             className="w-8 rounded cursor-pointer"
-            src={user?.photoURL || "https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png"}
+            src={user?.photoURL || {defaultAvatar}}
             alt="profile"
           />
 

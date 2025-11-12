@@ -20,19 +20,11 @@ const Home = () => {
           uid: user.uid,
           email: user.email,
           displayName: user.displayName,
-          emailVerified: user.emailVerified
+          emailVerified: user.emailVerified,
         }));
-
-        // Stop unverified users from going to browse
-        if (!user.emailVerified) {
-          sendEmailVerification(user).then(() => {
-            console.log("Verification email sent.");
-          });
-          navigate("/verify-sent");
-        } else {
-          navigate("/browse");
-        }
-
+        console.log(user);
+        
+        navigate("/browse");
       } else {
         dispatch(clearUser());
         navigate("/");
