@@ -104,6 +104,14 @@ const Login = () => {
         // Signed in 
         const user = userCredential.user;
         console.log(user);
+
+        if(user.emailVerified === false) {
+          sendEmailVerification(user).then(() => {
+            console.log("Verification email sent.");
+          });
+          navigate("/verify-sent");
+          return;
+        }
         dispatch(setUser({
           uid: user.uid,
           email: user.email,
@@ -140,8 +148,9 @@ const Login = () => {
         displayName: user.displayName,
         emailVerified: user.emailVerified,
         photoURL: user.photoURL,
+        testing: "hello"
       }));
-      
+
       navigate("/browse"); // Google is always verified
     } catch (error) {
       console.log(error);

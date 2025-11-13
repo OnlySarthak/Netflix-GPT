@@ -16,15 +16,17 @@ const Home = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        dispatch(setUser({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          emailVerified: user.emailVerified,
-        }));
-        console.log(user);
-        
-        navigate("/browse");
+        if (user.emailVerified === true) {
+          dispatch(setUser({
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            emailVerified: user.emailVerified,
+          }));
+          console.log(user);
+          
+          navigate("/browse");
+        }
       } else {
         dispatch(clearUser());
         navigate("/");

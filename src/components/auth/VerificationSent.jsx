@@ -21,7 +21,7 @@ const VerificationSent = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timer]);
+  }, []);
 
   const handleResendEmail = () => {
     if (!canResend) return;
